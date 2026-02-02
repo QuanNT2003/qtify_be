@@ -16,7 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { GenreService } from '../service/genre.service';
 import { CreateGenreDto } from '../model/dto/Genre/create-genre.dto';
-import { UpdateGenreDto } from '../model/dto/update-genre.dto';
+import { UpdateGenreDto } from '../model/dto/Genre/update-genre.dto';
 
 @Controller('genre')
 // @ApiBearerAuth()

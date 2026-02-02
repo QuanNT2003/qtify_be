@@ -6,10 +6,20 @@ import {
   Patch,
   Param,
   Delete,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiConsumes,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiBody,
+} from '@nestjs/swagger';
 import { ArtistService } from '../service/artist.service';
-import { CreateArtistDto } from '../model/dto/create-artist.dto';
+import { CreateArtistDto } from '../model/dto/Artist/create-artist.dto';
 import { UpdateArtistDto } from '../model/dto/Artist/update-artist.dto';
 
 @Controller('artist')
@@ -18,10 +28,31 @@ export class ArtistController {
   constructor(private readonly artistService: ArtistService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create an artist' })
+  @ApiOperation({ summary: 'Create an artist with optional avatar' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        bio: { type: 'string' },
+        verified: { type: 'boolean' },
+        avatar_url: { type: 'string' },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+      required: ['name'],
+    },
+  })
   @ApiResponse({ status: 201, description: 'Artist created' })
-  create(@Body() createArtistDto: CreateArtistDto) {
-    return this.artistService.create(createArtistDto);
+  @UseInterceptors(FileInterceptor('file'))
+  create(
+    @Body() createArtistDto: CreateArtistDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.artistService.create(createArtistDto, file);
   }
 
   @Get()
@@ -53,5 +84,29 @@ export class ArtistController {
   @ApiParam({ name: 'id', type: 'string' })
   remove(@Param('id') id: string) {
     return this.artistService.remove(id);
+  }
+
+  @Post(':id/avatar')
+  @ApiOperation({ summary: 'Upload artist avatar' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Avatar uploaded' })
+  @ApiParam({ name: 'id', type: 'string' })
+  @UseInterceptors(FileInterceptor('file'))
+  uploadAvatar(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.artistService.uploadAvatar(id, file);
   }
 }

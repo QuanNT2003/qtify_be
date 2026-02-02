@@ -15,6 +15,7 @@ import { UserLike } from './model/entity/user-like.entity';
 import { User } from './model/entity/user.entity';
 import { ServiceModule } from './service/service.module';
 import { ControllerModule } from './controller/controller.module';
+import { CloudinaryModule } from 'nestjs-cloudinary';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -47,6 +48,16 @@ import { ControllerModule } from './controller/controller.module';
         synchronize: true,
         autoLoadEntities: true,
       }),
+    }),
+    CloudinaryModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        isGlobal: true,
+        cloud_name: configService.get<string>('CLOUD_NAME'),
+        api_key: configService.get<string>('CLOUD_API_KEY'),
+        api_secret: configService.get<string>('CLOUD_API_SECRET'),
+      }),
+      inject: [ConfigService],
     }),
     ServiceModule,
     ControllerModule,

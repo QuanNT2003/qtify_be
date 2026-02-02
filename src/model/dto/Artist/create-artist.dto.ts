@@ -1,5 +1,6 @@
 import { IsString, IsOptional, MaxLength, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 
 export class CreateArtistDto {
   @ApiProperty({ example: 'Son Tung MTP', description: 'Artist name' })
@@ -23,6 +24,13 @@ export class CreateArtistDto {
 
   @ApiProperty({ example: false, description: 'Is artist verified' })
   @IsOptional()
+  @Transform(({ value }) => {
+    // Chuyển 'true' (string) thành true (boolean)
+    // Chuyển 'false' (string) thành false (boolean)
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
   @IsBoolean()
   verified?: boolean;
 }

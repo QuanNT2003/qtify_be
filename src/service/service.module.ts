@@ -3,6 +3,7 @@ import { Global, Module } from '@nestjs/common';
 import { EntityModule } from 'src/model/entity/entity.module';
 import { GenreService } from './genre.service';
 import { ArtistService } from './artist.service';
+import { CloudinaryService } from './cloudinary.service';
 
 @Global()
 @Module({
@@ -16,7 +17,7 @@ import { ArtistService } from './artist.service';
     //   }),
     // }),
   ],
-  providers: [GenreService, ArtistService],
-  exports: [GenreService, ArtistService],
+  providers: [GenreService, ArtistService, CloudinaryService],
+  exports: [GenreService, ArtistService, CloudinaryService],
 })
 export class ServiceModule {}
