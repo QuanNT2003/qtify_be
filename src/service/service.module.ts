@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 // import { JwtModule } from '@nestjs/jwt';
 import { EntityModule } from 'src/model/entity/entity.module';
 import { GenreService } from './genre.service';
+import { ArtistService } from './artist.service';
 
 @Global()
 @Module({
@@ -15,7 +16,7 @@ import { GenreService } from './genre.service';
     //   }),
     // }),
   ],
-  providers: [GenreService],
-  exports: [GenreService],
+  providers: [GenreService, ArtistService],
+  exports: [GenreService, ArtistService],
 })
 export class ServiceModule {}

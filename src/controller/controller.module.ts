@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 
 import { ServiceModule } from 'src/service/service.module';
 import { GenreController } from './genre.controller';
+import { ArtistController } from './artist.controller';
 // import { ParticipantController } from './participant.controller';
 
 @Module({
@@ -17,6 +18,6 @@ import { GenreController } from './genre.controller';
     //   }),
     // }),
   ],
-  controllers: [GenreController],
+  controllers: [GenreController, ArtistController],
 })
 export class ControllerModule {}
