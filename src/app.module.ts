@@ -13,6 +13,8 @@ import { SongGenre } from './model/entity/song-genre.entity';
 import { Song } from './model/entity/song.entity';
 import { UserLike } from './model/entity/user-like.entity';
 import { User } from './model/entity/user.entity';
+import { ServiceModule } from './service/service.module';
+import { ControllerModule } from './controller/controller.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -46,6 +48,8 @@ import { User } from './model/entity/user.entity';
         autoLoadEntities: true,
       }),
     }),
+    ServiceModule,
+    ControllerModule,
   ],
   controllers: [],
   providers: [],
