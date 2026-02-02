@@ -10,7 +10,7 @@ import {
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ArtistService } from '../service/artist.service';
 import { CreateArtistDto } from '../model/dto/create-artist.dto';
-import { UpdateArtistDto } from '../model/dto/update-artist.dto';
+import { UpdateArtistDto } from '../model/dto/Artist/update-artist.dto';
 
 @Controller('artist')
 @ApiTags('Artist')
