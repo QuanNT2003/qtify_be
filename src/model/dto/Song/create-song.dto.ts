@@ -61,4 +61,22 @@ export class CreateSongDto {
   @IsOptional()
   @IsString()
   lyrics?: string;
+
+  @ApiProperty({
+    example: ['uuid1', 'uuid2'],
+    description: 'List of genre IDs',
+    required: false,
+  })
+  @IsOptional()
+  @IsUUID('4', { each: true })
+  genre_ids?: string[];
+
+  @ApiProperty({
+    example: ['uuid1', 'uuid2'],
+    description: 'List of featured artist IDs',
+    required: false,
+  })
+  @IsOptional()
+  @IsUUID('4', { each: true })
+  artist_ids?: string[];
 }

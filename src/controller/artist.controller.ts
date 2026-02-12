@@ -18,12 +18,11 @@ import {
   ApiResponse,
   ApiTags,
   ApiBody,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { ArtistService } from '../service/artist.service';
 import { CreateArtistDto } from '../model/dto/Artist/create-artist.dto';
 import { UpdateArtistDto } from '../model/dto/Artist/update-artist.dto';
-import { PageOptionsDto } from '../common/dto/pagination-query.dto';
+import { GetArtistsDto } from '../model/dto/Artist/get-artists.dto';
 
 @Controller('artist')
 @ApiTags('Artist')
@@ -60,11 +59,9 @@ export class ArtistController {
 
   @Get()
   @ApiOperation({ summary: 'Find all artists with pagination' })
-  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
-  @ApiQuery({ name: 'per_page', required: false, type: Number, example: 10 })
   @ApiResponse({ status: 200, description: 'Artists found' })
-  findAll(@Query() pageOptions: PageOptionsDto) {
-    return this.artistService.findAll(pageOptions);
+  findAll(@Query() query: GetArtistsDto) {
+    return this.artistService.findAll(query);
   }
 
   @Get(':id')

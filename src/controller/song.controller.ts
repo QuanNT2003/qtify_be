@@ -44,6 +44,14 @@ export class SongController {
         file_url: { type: 'string' },
         track_number: { type: 'integer' },
         lyrics: { type: 'string' },
+        genre_ids: {
+          type: 'array',
+          items: { type: 'string', format: 'uuid' },
+        },
+        artist_ids: {
+          type: 'array',
+          items: { type: 'string', format: 'uuid' },
+        },
         file: {
           type: 'string',
           format: 'binary',
@@ -92,6 +100,14 @@ export class SongController {
         file_url: { type: 'string' },
         track_number: { type: 'integer' },
         lyrics: { type: 'string' },
+        genre_ids: {
+          type: 'array',
+          items: { type: 'string', format: 'uuid' },
+        },
+        artist_ids: {
+          type: 'array',
+          items: { type: 'string', format: 'uuid' },
+        },
         file: {
           type: 'string',
           format: 'binary',

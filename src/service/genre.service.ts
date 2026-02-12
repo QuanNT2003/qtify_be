@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { CreateGenreDto } from '../model/dto/Genre/create-genre.dto';
 import { UpdateGenreDto } from '../model/dto/Genre/update-genre.dto';
 import { Genre } from 'src/model/entity/genre.entity';
-import { PageOptionsDto } from 'src/common/dto/pagination-query.dto';
+import { GetGenresDto } from '../model/dto/Genre/get-genres.dto';
 import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
 
 @Injectable()
@@ -20,21 +20,22 @@ export class GenreService {
     return this.genreRepository.save(genre);
   }
 
-  async findAll(
-    pageOptionsDto: PageOptionsDto,
-  ): Promise<PaginatedResult<Genre>> {
+  async findAll(query: GetGenresDto): Promise<PaginatedResult<Genre>> {
+    const where = query.name ? { name: ILike(`%${query.name}%`) } : {};
+
     const [data, total] = await this.genreRepository.findAndCount({
-      skip: pageOptionsDto.skip,
-      take: pageOptionsDto.per_page,
+      skip: query.skip,
+      take: query.per_page,
+      where,
     });
 
-    const total_page = Math.ceil(total / pageOptionsDto.per_page);
+    const total_page = Math.ceil(total / query.per_page);
 
     return {
       data,
       pagination: {
-        page: pageOptionsDto.page,
-        per_page: pageOptionsDto.per_page,
+        page: query.page,
+        per_page: query.per_page,
         total,
         total_page,
       },

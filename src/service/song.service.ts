@@ -7,6 +7,8 @@ import { Song } from 'src/model/entity/song.entity';
 import { CloudinaryService } from './cloudinary.service';
 import { PageOptionsDto } from 'src/common/dto/pagination-query.dto';
 import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
+import { SongGenreService } from './song-genre.service';
+import { SongArtistService } from './song-artist.service';
 
 @Injectable()
 export class SongService {
@@ -14,6 +16,8 @@ export class SongService {
     @InjectRepository(Song)
     private songRepository: Repository<Song>,
     private cloudinaryService: CloudinaryService,
+    private songGenreService: SongGenreService,
+    private songArtistService: SongArtistService,
   ) {}
 
   async create(createSongDto: CreateSongDto, file?: Express.Multer.File) {
@@ -31,7 +35,30 @@ export class SongService {
     }
 
     const song = this.songRepository.create(createSongDto);
-    return this.songRepository.save(song);
+    const savedSong = await this.songRepository.save(song);
+
+    // Create Song - Genre relationships
+    if (createSongDto.genre_ids && createSongDto.genre_ids.length > 0) {
+      for (const genreId of createSongDto.genre_ids) {
+        await this.songGenreService.create({
+          song_id: savedSong.id,
+          genre_id: genreId,
+        });
+      }
+    }
+
+    // Create Song - Artist relationships (Featured artists)
+    if (createSongDto.artist_ids && createSongDto.artist_ids.length > 0) {
+      for (const artistId of createSongDto.artist_ids) {
+        await this.songArtistService.create({
+          song_id: savedSong.id,
+          artist_id: artistId,
+          // Default role is FEATURED as per DTO
+        });
+      }
+    }
+
+    return savedSong;
   }
 
   async findAll(
