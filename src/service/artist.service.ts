@@ -37,11 +37,31 @@ export class ArtistService {
     return this.artistRepository.findOne({ where: { id } });
   }
 
-  async update(id: string, updateArtistDto: UpdateArtistDto) {
+  async update(
+    id: string,
+    updateArtistDto: UpdateArtistDto,
+    file?: Express.Multer.File,
+  ) {
     const artist = await this.findOne(id);
     if (!artist) {
       throw new NotFoundException('Artist not found');
     }
+
+    // Handle avatar update
+    if (file) {
+      // Delete old avatar if exists
+      if (artist.avatar_url) {
+        await this.cloudinaryService.deleteFile(artist.avatar_url, 'image');
+      }
+
+      // Upload new avatar
+      const uploadResult = await this.cloudinaryService.uploadImage(
+        file,
+        'artists',
+      );
+      artist.avatar_url = uploadResult.secure_url;
+    }
+
     Object.assign(artist, updateArtistDto);
     return this.artistRepository.save(artist);
   }

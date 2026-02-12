@@ -45,11 +45,31 @@ export class UserService {
     return this.userRepository.findOne({ where: { username } });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    file?: Express.Multer.File,
+  ) {
     const user = await this.findOne(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
+
+    // Handle avatar update
+    if (file) {
+      // Delete old avatar if exists
+      if (user.avatar_url) {
+        await this.cloudinaryService.deleteFile(user.avatar_url, 'image');
+      }
+
+      // Upload new avatar
+      const uploadResult = await this.cloudinaryService.uploadImage(
+        file,
+        'users',
+      );
+      user.avatar_url = uploadResult.secure_url;
+    }
+
     Object.assign(user, updateUserDto);
     return this.userRepository.save(user);
   }

@@ -73,10 +73,32 @@ export class AlbumController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update an album by ID' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        artist_id: { type: 'string' },
+        release_date: { type: 'string', format: 'date' },
+        type: { type: 'string', enum: ['SINGLE', 'ALBUM', 'EP'] },
+        cover_image_url: { type: 'string' },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 200, description: 'Album updated' })
   @ApiParam({ name: 'id', type: 'string' })
-  update(@Param('id') id: string, @Body() updateAlbumDto: UpdateAlbumDto) {
-    return this.albumService.update(id, updateAlbumDto);
+  @UseInterceptors(FileInterceptor('file'))
+  update(
+    @Param('id') id: string,
+    @Body() updateAlbumDto: UpdateAlbumDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.albumService.update(id, updateAlbumDto, file);
   }
 
   @Delete(':id')

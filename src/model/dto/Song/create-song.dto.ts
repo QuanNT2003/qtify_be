@@ -36,10 +36,12 @@ export class CreateSongDto {
   @ApiProperty({
     example: 'https://example.com/song.mp3',
     description: 'Audio file URL',
+    required: false,
   })
+  @IsOptional()
   @IsString()
   @MaxLength(500)
-  file_url: string;
+  file_url?: string;
 
   @ApiProperty({
     example: 1,

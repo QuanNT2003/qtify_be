@@ -37,11 +37,31 @@ export class AlbumService {
     return this.albumRepository.findOne({ where: { id } });
   }
 
-  async update(id: string, updateAlbumDto: UpdateAlbumDto) {
+  async update(
+    id: string,
+    updateAlbumDto: UpdateAlbumDto,
+    file?: Express.Multer.File,
+  ) {
     const album = await this.findOne(id);
     if (!album) {
       throw new NotFoundException('Album not found');
     }
+
+    // Handle image update
+    if (file) {
+      // Delete old image if exists
+      if (album.cover_image_url) {
+        await this.cloudinaryService.deleteFile(album.cover_image_url, 'image');
+      }
+
+      // Upload new image
+      const uploadResult = await this.cloudinaryService.uploadImage(
+        file,
+        'albums',
+      );
+      album.cover_image_url = uploadResult.secure_url;
+    }
+
     Object.assign(album, updateAlbumDto);
     return this.albumRepository.save(album);
   }

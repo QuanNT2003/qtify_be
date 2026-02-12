@@ -29,9 +29,33 @@ export class SongController {
 
   @Post()
   @ApiOperation({ summary: 'Create a song' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        album_id: { type: 'string' },
+        artist_id: { type: 'string' },
+        duration: { type: 'integer' },
+        file_url: { type: 'string' },
+        track_number: { type: 'integer' },
+        lyrics: { type: 'string' },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+      required: ['title', 'artist_id', 'duration'],
+    },
+  })
   @ApiResponse({ status: 201, description: 'Song created' })
-  create(@Body() createSongDto: CreateSongDto) {
-    return this.songService.create(createSongDto);
+  @UseInterceptors(FileInterceptor('file'))
+  create(
+    @Body() createSongDto: CreateSongDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.songService.create(createSongDto, file);
   }
 
   @Get()
@@ -51,10 +75,34 @@ export class SongController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a song by ID' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        album_id: { type: 'string' },
+        artist_id: { type: 'string' },
+        duration: { type: 'integer' },
+        file_url: { type: 'string' },
+        track_number: { type: 'integer' },
+        lyrics: { type: 'string' },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 200, description: 'Song updated' })
   @ApiParam({ name: 'id', type: 'string' })
-  update(@Param('id') id: string, @Body() updateSongDto: UpdateSongDto) {
-    return this.songService.update(id, updateSongDto);
+  @UseInterceptors(FileInterceptor('file'))
+  update(
+    @Param('id') id: string,
+    @Body() updateSongDto: UpdateSongDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.songService.update(id, updateSongDto, file);
   }
 
   @Delete(':id')

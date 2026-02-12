@@ -81,13 +81,32 @@ export class PlaylistController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a playlist by ID' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        user_id: { type: 'string' },
+        title: { type: 'string' },
+        description: { type: 'string' },
+        is_public: { type: 'boolean' },
+        cover_image_url: { type: 'string' },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 200, description: 'Playlist updated' })
   @ApiParam({ name: 'id', type: 'string' })
+  @UseInterceptors(FileInterceptor('file'))
   update(
     @Param('id') id: string,
     @Body() updatePlaylistDto: UpdatePlaylistDto,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.playlistService.update(id, updatePlaylistDto);
+    return this.playlistService.update(id, updatePlaylistDto, file);
   }
 
   @Delete(':id')

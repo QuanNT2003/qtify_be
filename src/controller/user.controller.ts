@@ -75,10 +75,34 @@ export class UserController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a user by ID' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        username: { type: 'string' },
+        email: { type: 'string' },
+        password_hash: { type: 'string' },
+        subscription_type: { type: 'string', enum: ['FREE', 'PREMIUM'] },
+        avatar_url: { type: 'string' },
+        full_name: { type: 'string' },
+        date_of_birth: { type: 'string', format: 'date' },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 200, description: 'User updated' })
   @ApiParam({ name: 'id', type: 'string' })
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  @UseInterceptors(FileInterceptor('file'))
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.userService.update(id, updateUserDto, file);
   }
 
   @Delete(':id')

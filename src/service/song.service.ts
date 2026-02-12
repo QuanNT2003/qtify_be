@@ -14,7 +14,20 @@ export class SongService {
     private cloudinaryService: CloudinaryService,
   ) {}
 
-  async create(createSongDto: CreateSongDto) {
+  async create(createSongDto: CreateSongDto, file?: Express.Multer.File) {
+    if (file) {
+      const uploadResult = await this.cloudinaryService.uploadFile(
+        file,
+        'songs',
+        'video',
+      );
+      createSongDto.file_url = uploadResult.secure_url;
+    }
+
+    if (!createSongDto.file_url) {
+      throw new NotFoundException('Audio file or file_url is required');
+    }
+
     const song = this.songRepository.create(createSongDto);
     return this.songRepository.save(song);
   }
@@ -27,11 +40,32 @@ export class SongService {
     return this.songRepository.findOne({ where: { id } });
   }
 
-  async update(id: string, updateSongDto: UpdateSongDto) {
+  async update(
+    id: string,
+    updateSongDto: UpdateSongDto,
+    file?: Express.Multer.File,
+  ) {
     const song = await this.findOne(id);
     if (!song) {
       throw new NotFoundException('Song not found');
     }
+
+    // Handle audio file update
+    if (file) {
+      // Delete old file if exists
+      if (song.file_url) {
+        await this.cloudinaryService.deleteFile(song.file_url, 'video');
+      }
+
+      // Upload new file
+      const uploadResult = await this.cloudinaryService.uploadFile(
+        file,
+        'songs',
+        'video',
+      );
+      song.file_url = uploadResult.secure_url;
+    }
+
     Object.assign(song, updateSongDto);
     return this.songRepository.save(song);
   }

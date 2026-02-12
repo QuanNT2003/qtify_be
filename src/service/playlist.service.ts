@@ -44,11 +44,34 @@ export class PlaylistService {
     return this.playlistRepository.find({ where: { user_id: userId } });
   }
 
-  async update(id: string, updatePlaylistDto: UpdatePlaylistDto) {
+  async update(
+    id: string,
+    updatePlaylistDto: UpdatePlaylistDto,
+    file?: Express.Multer.File,
+  ) {
     const playlist = await this.findOne(id);
     if (!playlist) {
       throw new NotFoundException('Playlist not found');
     }
+
+    // Handle cover image update
+    if (file) {
+      // Delete old cover image if exists
+      if (playlist.cover_image_url) {
+        await this.cloudinaryService.deleteFile(
+          playlist.cover_image_url,
+          'image',
+        );
+      }
+
+      // Upload new cover image
+      const uploadResult = await this.cloudinaryService.uploadImage(
+        file,
+        'playlists',
+      );
+      playlist.cover_image_url = uploadResult.secure_url;
+    }
+
     Object.assign(playlist, updatePlaylistDto);
     return this.playlistRepository.save(playlist);
   }

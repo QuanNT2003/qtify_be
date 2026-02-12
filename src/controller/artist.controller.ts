@@ -72,10 +72,31 @@ export class ArtistController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update an artist by ID' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        bio: { type: 'string' },
+        verified: { type: 'boolean' },
+        avatar_url: { type: 'string' },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 200, description: 'Artist updated' })
   @ApiParam({ name: 'id', type: 'string' })
-  update(@Param('id') id: string, @Body() updateArtistDto: UpdateArtistDto) {
-    return this.artistService.update(id, updateArtistDto);
+  @UseInterceptors(FileInterceptor('file'))
+  update(
+    @Param('id') id: string,
+    @Body() updateArtistDto: UpdateArtistDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.artistService.update(id, updateArtistDto, file);
   }
 
   @Delete(':id')
