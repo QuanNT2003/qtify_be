@@ -34,12 +34,28 @@ export class SongService {
       throw new NotFoundException('Audio file or file_url is required');
     }
 
+    // Normalize genre_ids and artist_ids (FormData may send them as strings)
+    const normalizeArrayField = (field: any): string[] => {
+      if (!field) return [];
+      if (Array.isArray(field)) return field;
+      if (typeof field === 'string') {
+        return field
+          .split(',')
+          .map((id) => id.trim())
+          .filter((id) => id);
+      }
+      return [];
+    };
+
+    const genre_ids = normalizeArrayField(createSongDto.genre_ids);
+    const artist_ids = normalizeArrayField(createSongDto.artist_ids);
+
     const song = this.songRepository.create(createSongDto);
     const savedSong = await this.songRepository.save(song);
 
     // Create Song - Genre relationships
-    if (createSongDto.genre_ids && createSongDto.genre_ids.length > 0) {
-      for (const genreId of createSongDto.genre_ids) {
+    if (genre_ids.length > 0) {
+      for (const genreId of genre_ids) {
         await this.songGenreService.create({
           song_id: savedSong.id,
           genre_id: genreId,
@@ -48,8 +64,8 @@ export class SongService {
     }
 
     // Create Song - Artist relationships (Featured artists)
-    if (createSongDto.artist_ids && createSongDto.artist_ids.length > 0) {
-      for (const artistId of createSongDto.artist_ids) {
+    if (artist_ids.length > 0) {
+      for (const artistId of artist_ids) {
         await this.songArtistService.create({
           song_id: savedSong.id,
           artist_id: artistId,
