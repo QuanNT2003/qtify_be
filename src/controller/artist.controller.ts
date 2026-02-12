@@ -8,6 +8,7 @@ import {
   Delete,
   UploadedFile,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -17,10 +18,12 @@ import {
   ApiResponse,
   ApiTags,
   ApiBody,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { ArtistService } from '../service/artist.service';
 import { CreateArtistDto } from '../model/dto/Artist/create-artist.dto';
 import { UpdateArtistDto } from '../model/dto/Artist/update-artist.dto';
+import { PageOptionsDto } from '../common/dto/pagination-query.dto';
 
 @Controller('artist')
 @ApiTags('Artist')
@@ -56,10 +59,12 @@ export class ArtistController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Find all artists' })
+  @ApiOperation({ summary: 'Find all artists with pagination' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'per_page', required: false, type: Number, example: 10 })
   @ApiResponse({ status: 200, description: 'Artists found' })
-  findAll() {
-    return this.artistService.findAll();
+  findAll(@Query() pageOptions: PageOptionsDto) {
+    return this.artistService.findAll(pageOptions);
   }
 
   @Get(':id')

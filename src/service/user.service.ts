@@ -5,6 +5,8 @@ import { CreateUserDto } from '../model/dto/User/create-user.dto';
 import { UpdateUserDto } from '../model/dto/User/update-user.dto';
 import { User } from 'src/model/entity/user.entity';
 import { CloudinaryService } from './cloudinary.service';
+import { PageOptionsDto } from 'src/common/dto/pagination-query.dto';
+import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
 
 @Injectable()
 export class UserService {
@@ -29,8 +31,25 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
-  findAll() {
-    return this.userRepository.find();
+  async findAll(
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PaginatedResult<User>> {
+    const [data, total] = await this.userRepository.findAndCount({
+      skip: pageOptionsDto.skip,
+      take: pageOptionsDto.per_page,
+    });
+
+    const total_page = Math.ceil(total / pageOptionsDto.per_page);
+
+    return {
+      data,
+      pagination: {
+        page: pageOptionsDto.page,
+        per_page: pageOptionsDto.per_page,
+        total,
+        total_page,
+      },
+    };
   }
 
   findOne(id: string) {

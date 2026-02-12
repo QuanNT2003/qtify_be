@@ -8,6 +8,7 @@ import {
   Delete,
   UploadedFile,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -17,10 +18,12 @@ import {
   ApiResponse,
   ApiTags,
   ApiBody,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { UserService } from '../service/user.service';
 import { CreateUserDto } from '../model/dto/User/create-user.dto';
 import { UpdateUserDto } from '../model/dto/User/update-user.dto';
+import { PageOptionsDto } from '../common/dto/pagination-query.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -59,10 +62,12 @@ export class UserController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Find all users' })
+  @ApiOperation({ summary: 'Find all users with pagination' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'per_page', required: false, type: Number, example: 10 })
   @ApiResponse({ status: 200, description: 'Users found' })
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query() pageOptions: PageOptionsDto) {
+    return this.userService.findAll(pageOptions);
   }
 
   @Get(':id')

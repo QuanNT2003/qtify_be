@@ -5,6 +5,8 @@ import { CreateSongDto } from '../model/dto/Song/create-song.dto';
 import { UpdateSongDto } from '../model/dto/Song/update-song.dto';
 import { Song } from 'src/model/entity/song.entity';
 import { CloudinaryService } from './cloudinary.service';
+import { PageOptionsDto } from 'src/common/dto/pagination-query.dto';
+import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
 
 @Injectable()
 export class SongService {
@@ -32,8 +34,25 @@ export class SongService {
     return this.songRepository.save(song);
   }
 
-  findAll() {
-    return this.songRepository.find();
+  async findAll(
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PaginatedResult<Song>> {
+    const [data, total] = await this.songRepository.findAndCount({
+      skip: pageOptionsDto.skip,
+      take: pageOptionsDto.per_page,
+    });
+
+    const total_page = Math.ceil(total / pageOptionsDto.per_page);
+
+    return {
+      data,
+      pagination: {
+        page: pageOptionsDto.page,
+        per_page: pageOptionsDto.per_page,
+        total,
+        total_page,
+      },
+    };
   }
 
   findOne(id: string) {

@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import {
   // ApiBearerAuth,
@@ -13,10 +14,12 @@ import {
   ApiParam,
   ApiResponse,
   ApiTags,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { GenreService } from '../service/genre.service';
 import { CreateGenreDto } from '../model/dto/Genre/create-genre.dto';
 import { UpdateGenreDto } from '../model/dto/Genre/update-genre.dto';
+import { PageOptionsDto } from '../common/dto/pagination-query.dto';
 
 @Controller('genre')
 // @ApiBearerAuth()
@@ -32,10 +35,12 @@ export class GenreController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Find all genres' })
+  @ApiOperation({ summary: 'Find all genres with pagination' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'per_page', required: false, type: Number, example: 10 })
   @ApiResponse({ status: 200, description: 'Genres found' })
-  findAll() {
-    return this.genreService.findAll();
+  findAll(@Query() pageOptions: PageOptionsDto) {
+    return this.genreService.findAll(pageOptions);
   }
 
   @Get(':id')

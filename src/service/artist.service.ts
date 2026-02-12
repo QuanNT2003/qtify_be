@@ -5,6 +5,8 @@ import { CreateArtistDto } from '../model/dto/Artist/create-artist.dto';
 import { UpdateArtistDto } from '../model/dto/Artist/update-artist.dto';
 import { Artist } from 'src/model/entity/artist.entity';
 import { CloudinaryService } from './cloudinary.service';
+import { PageOptionsDto } from 'src/common/dto/pagination-query.dto';
+import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
 
 @Injectable()
 export class ArtistService {
@@ -29,8 +31,25 @@ export class ArtistService {
     return this.artistRepository.save(artist);
   }
 
-  findAll() {
-    return this.artistRepository.find();
+  async findAll(
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PaginatedResult<Artist>> {
+    const [data, total] = await this.artistRepository.findAndCount({
+      skip: pageOptionsDto.skip,
+      take: pageOptionsDto.per_page,
+    });
+
+    const total_page = Math.ceil(total / pageOptionsDto.per_page);
+
+    return {
+      data,
+      pagination: {
+        page: pageOptionsDto.page,
+        per_page: pageOptionsDto.per_page,
+        total,
+        total_page,
+      },
+    };
   }
 
   findOne(id: string) {

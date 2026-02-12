@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { CreateGenreDto } from '../model/dto/Genre/create-genre.dto';
 import { UpdateGenreDto } from '../model/dto/Genre/update-genre.dto';
 import { Genre } from 'src/model/entity/genre.entity';
+import { PageOptionsDto } from 'src/common/dto/pagination-query.dto';
+import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
 
 @Injectable()
 export class GenreService {
@@ -18,8 +20,25 @@ export class GenreService {
     return this.genreRepository.save(genre);
   }
 
-  findAll() {
-    return this.genreRepository.find();
+  async findAll(
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PaginatedResult<Genre>> {
+    const [data, total] = await this.genreRepository.findAndCount({
+      skip: pageOptionsDto.skip,
+      take: pageOptionsDto.per_page,
+    });
+
+    const total_page = Math.ceil(total / pageOptionsDto.per_page);
+
+    return {
+      data,
+      pagination: {
+        page: pageOptionsDto.page,
+        per_page: pageOptionsDto.per_page,
+        total,
+        total_page,
+      },
+    };
   }
 
   findOne(id: string) {

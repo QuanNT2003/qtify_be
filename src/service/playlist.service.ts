@@ -5,6 +5,8 @@ import { CreatePlaylistDto } from '../model/dto/Playlist/create-playlist.dto';
 import { UpdatePlaylistDto } from '../model/dto/Playlist/update-playlist.dto';
 import { Playlist } from 'src/model/entity/playlist.entity';
 import { CloudinaryService } from './cloudinary.service';
+import { PageOptionsDto } from 'src/common/dto/pagination-query.dto';
+import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
 
 @Injectable()
 export class PlaylistService {
@@ -32,8 +34,25 @@ export class PlaylistService {
     return this.playlistRepository.save(playlist);
   }
 
-  findAll() {
-    return this.playlistRepository.find();
+  async findAll(
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PaginatedResult<Playlist>> {
+    const [data, total] = await this.playlistRepository.findAndCount({
+      skip: pageOptionsDto.skip,
+      take: pageOptionsDto.per_page,
+    });
+
+    const total_page = Math.ceil(total / pageOptionsDto.per_page);
+
+    return {
+      data,
+      pagination: {
+        page: pageOptionsDto.page,
+        per_page: pageOptionsDto.per_page,
+        total,
+        total_page,
+      },
+    };
   }
 
   findOne(id: string) {

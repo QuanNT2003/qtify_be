@@ -17,6 +17,7 @@ import {
 import { FollowService } from '../service/follow.service';
 import { CreateFollowDto } from '../model/dto/Follow/create-follow.dto';
 import { FollowType } from 'src/model/entity/follow.entity';
+import { PageOptionsDto } from '../common/dto/pagination-query.dto';
 
 @Controller('follow')
 @ApiTags('Follow')
@@ -31,10 +32,12 @@ export class FollowController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Find all follows' })
+  @ApiOperation({ summary: 'Find all follows with pagination' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'per_page', required: false, type: Number, example: 10 })
   @ApiResponse({ status: 200, description: 'Follows found' })
-  findAll() {
-    return this.followService.findAll();
+  findAll(@Query() pageOptions: PageOptionsDto) {
+    return this.followService.findAll(pageOptions);
   }
 
   @Get('followers/:id')

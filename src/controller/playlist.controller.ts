@@ -8,6 +8,7 @@ import {
   Delete,
   UploadedFile,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -17,10 +18,12 @@ import {
   ApiResponse,
   ApiTags,
   ApiBody,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { PlaylistService } from '../service/playlist.service';
 import { CreatePlaylistDto } from '../model/dto/Playlist/create-playlist.dto';
 import { UpdatePlaylistDto } from '../model/dto/Playlist/update-playlist.dto';
+import { PageOptionsDto } from '../common/dto/pagination-query.dto';
 
 @Controller('playlist')
 @ApiTags('Playlist')
@@ -57,10 +60,12 @@ export class PlaylistController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Find all playlists' })
+  @ApiOperation({ summary: 'Find all playlists with pagination' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'per_page', required: false, type: Number, example: 10 })
   @ApiResponse({ status: 200, description: 'Playlists found' })
-  findAll() {
-    return this.playlistService.findAll();
+  findAll(@Query() pageOptions: PageOptionsDto) {
+    return this.playlistService.findAll(pageOptions);
   }
 
   @Get(':id')

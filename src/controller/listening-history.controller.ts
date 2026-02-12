@@ -1,7 +1,22 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
+import {
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { ListeningHistoryService } from '../service/listening-history.service';
 import { CreateListeningHistoryDto } from '../model/dto/ListeningHistory/create-listening-history.dto';
+import { PageOptionsDto } from '../common/dto/pagination-query.dto';
 
 @Controller('listening-history')
 @ApiTags('ListeningHistory')
@@ -18,10 +33,12 @@ export class ListeningHistoryController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Find all listening history' })
+  @ApiOperation({ summary: 'Find all listening history with pagination' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'per_page', required: false, type: Number, example: 10 })
   @ApiResponse({ status: 200, description: 'Listening history found' })
-  findAll() {
-    return this.listeningHistoryService.findAll();
+  findAll(@Query() pageOptions: PageOptionsDto) {
+    return this.listeningHistoryService.findAll(pageOptions);
   }
 
   @Get(':id')
