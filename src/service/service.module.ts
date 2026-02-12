@@ -4,6 +4,16 @@ import { EntityModule } from 'src/model/entity/entity.module';
 import { GenreService } from './genre.service';
 import { ArtistService } from './artist.service';
 import { CloudinaryService } from './cloudinary.service';
+import { AlbumService } from './album.service';
+import { SongService } from './song.service';
+import { UserService } from './user.service';
+import { PlaylistService } from './playlist.service';
+import { FollowService } from './follow.service';
+import { ListeningHistoryService } from './listening-history.service';
+import { PlaylistSongService } from './playlist-song.service';
+import { SongArtistService } from './song-artist.service';
+import { SongGenreService } from './song-genre.service';
+import { UserLikeService } from './user-like.service';
 
 @Global()
 @Module({
@@ -17,7 +27,35 @@ import { CloudinaryService } from './cloudinary.service';
     //   }),
     // }),
   ],
-  providers: [GenreService, ArtistService, CloudinaryService],
-  exports: [GenreService, ArtistService, CloudinaryService],
+  providers: [
+    GenreService,
+    ArtistService,
+    CloudinaryService,
+    AlbumService,
+    SongService,
+    UserService,
+    PlaylistService,
+    FollowService,
+    ListeningHistoryService,
+    PlaylistSongService,
+    SongArtistService,
+    SongGenreService,
+    UserLikeService,
+  ],
+  exports: [
+    GenreService,
+    ArtistService,
+    CloudinaryService,
+    AlbumService,
+    SongService,
+    UserService,
+    PlaylistService,
+    FollowService,
+    ListeningHistoryService,
+    PlaylistSongService,
+    SongArtistService,
+    SongGenreService,
+    UserLikeService,
+  ],
 })
 export class ServiceModule {}

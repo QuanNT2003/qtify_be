@@ -1,0 +1,124 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiConsumes,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiBody,
+} from '@nestjs/swagger';
+import { PlaylistService } from '../service/playlist.service';
+import { CreatePlaylistDto } from '../model/dto/Playlist/create-playlist.dto';
+import { UpdatePlaylistDto } from '../model/dto/Playlist/update-playlist.dto';
+
+@Controller('playlist')
+@ApiTags('Playlist')
+export class PlaylistController {
+  constructor(private readonly playlistService: PlaylistService) {}
+
+  @Post()
+  @ApiOperation({ summary: 'Create a playlist with optional cover' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        user_id: { type: 'string' },
+        title: { type: 'string' },
+        description: { type: 'string' },
+        is_public: { type: 'boolean' },
+        cover_image_url: { type: 'string' },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+      required: ['user_id', 'title'],
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Playlist created' })
+  @UseInterceptors(FileInterceptor('file'))
+  create(
+    @Body() createPlaylistDto: CreatePlaylistDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.playlistService.create(createPlaylistDto, file);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Find all playlists' })
+  @ApiResponse({ status: 200, description: 'Playlists found' })
+  findAll() {
+    return this.playlistService.findAll();
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Find a playlist by ID' })
+  @ApiResponse({ status: 200, description: 'Playlist found' })
+  @ApiParam({ name: 'id', type: 'string' })
+  findOne(@Param('id') id: string) {
+    return this.playlistService.findOne(id);
+  }
+
+  @Get('user/:userId')
+  @ApiOperation({ summary: 'Find playlists by user ID' })
+  @ApiResponse({ status: 200, description: 'User playlists found' })
+  @ApiParam({ name: 'userId', type: 'string' })
+  findByUser(@Param('userId') userId: string) {
+    return this.playlistService.findByUser(userId);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update a playlist by ID' })
+  @ApiResponse({ status: 200, description: 'Playlist updated' })
+  @ApiParam({ name: 'id', type: 'string' })
+  update(
+    @Param('id') id: string,
+    @Body() updatePlaylistDto: UpdatePlaylistDto,
+  ) {
+    return this.playlistService.update(id, updatePlaylistDto);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a playlist by ID' })
+  @ApiResponse({ status: 200, description: 'Playlist deleted' })
+  @ApiParam({ name: 'id', type: 'string' })
+  remove(@Param('id') id: string) {
+    return this.playlistService.remove(id);
+  }
+
+  @Post(':id/cover')
+  @ApiOperation({ summary: 'Upload playlist cover image' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Cover image uploaded' })
+  @ApiParam({ name: 'id', type: 'string' })
+  @UseInterceptors(FileInterceptor('file'))
+  uploadCoverImage(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.playlistService.uploadCoverImage(id, file);
+  }
+}

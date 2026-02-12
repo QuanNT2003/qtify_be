@@ -51,6 +51,11 @@ export class ArtistService {
     if (!artist) {
       throw new NotFoundException('Artist not found');
     }
+
+    if (artist.avatar_url) {
+      await this.cloudinaryService.deleteFile(artist.avatar_url, 'image');
+    }
+
     return this.artistRepository.remove(artist);
   }
 
