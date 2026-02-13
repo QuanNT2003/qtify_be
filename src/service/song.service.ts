@@ -83,6 +83,13 @@ export class SongService {
     const [data, total] = await this.songRepository.findAndCount({
       skip: pageOptionsDto.skip,
       take: pageOptionsDto.per_page,
+      relations: [
+        'artist',
+        'featured_artists',
+        'featured_artists.artist',
+        'genres',
+        'genres.genre',
+      ],
     });
 
     const total_page = Math.ceil(total / pageOptionsDto.per_page);
@@ -99,7 +106,16 @@ export class SongService {
   }
 
   findOne(id: string) {
-    return this.songRepository.findOne({ where: { id } });
+    return this.songRepository.findOne({
+      where: { id },
+      relations: [
+        'artist',
+        'featured_artists',
+        'featured_artists.artist',
+        'genres',
+        'genres.genre',
+      ],
+    });
   }
 
   async update(
