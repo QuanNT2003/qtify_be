@@ -30,6 +30,7 @@ import { RolesGuard } from './common/guard/roles.guard';
     }),
     PassportModule,
     JwtModule.registerAsync({
+      global: true,
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({

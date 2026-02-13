@@ -34,7 +34,8 @@ async function bootstrap() {
     .setTitle('Qtify API')
     .setDescription('Danh sách các API cho hệ thống backend')
     .setVersion('1.0')
-    .addTag('qtify') // Bạn có thể thêm tag để phân loại API
+    .addTag('qtify')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

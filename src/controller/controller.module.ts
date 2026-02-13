@@ -19,16 +19,7 @@ import { AuthController } from './auth.controller';
 // import { ParticipantController } from './participant.controller';
 
 @Module({
-  imports: [
-    ServiceModule,
-    // JwtModule.registerAsync({
-    //   imports: [ConfigModule],
-    //   useFactory: async () => ({
-    //     secret: process.env.JWT_SECRET,
-    //     signOptions: { expiresIn: '15m' },
-    //   }),
-    // }),
-  ],
+  imports: [ServiceModule],
   controllers: [
     GenreController,
     ArtistController,

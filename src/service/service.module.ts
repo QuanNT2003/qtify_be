@@ -18,16 +18,7 @@ import { AuthService } from './auth.service';
 
 @Global()
 @Module({
-  imports: [
-    EntityModule,
-    // JwtModule.registerAsync({
-    //   imports: [ConfigModule],
-    //   useFactory: async () => ({
-    //     secret: process.env.JWT_SECRET,
-    //     signOptions: { expiresIn: '1d' },
-    //   }),
-    // }),
-  ],
+  imports: [EntityModule],
   providers: [
     GenreService,
     ArtistService,
