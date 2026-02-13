@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
+  ApiBearerAuth,
   ApiConsumes,
   ApiOperation,
   ApiParam,
@@ -24,11 +25,21 @@ import { UserService } from '../service/user.service';
 import { CreateUserDto } from '../model/dto/User/create-user.dto';
 import { UpdateUserDto } from '../model/dto/User/update-user.dto';
 import { PageOptionsDto } from '../common/dto/pagination-query.dto';
+import { CurrentUser } from '../common/decorator/current-user.decorator';
+import { User } from '../model/entity/user.entity';
 
-@Controller('user')
+@Controller('users')
 @ApiTags('User')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Get('profile')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user profile' })
+  @ApiResponse({ status: 200, description: 'User profile returned' })
+  getProfile(@CurrentUser() user: User) {
+    return user;
+  }
 
   @Post()
   @ApiOperation({ summary: 'Create a user with optional avatar' })
