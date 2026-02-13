@@ -16,10 +16,26 @@ import { User } from './model/entity/user.entity';
 import { ServiceModule } from './service/service.module';
 import { ControllerModule } from './controller/controller.module';
 import { CloudinaryModule } from 'nestjs-cloudinary';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './common/strategies/jwt.strategy';
+import { JwtRefreshStrategy } from './common/strategies/jwt-refresh.strategy';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './common/guard/jwt-auth.guard';
+import { RolesGuard } from './common/guard/roles.guard';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    PassportModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '1d' },
+      }),
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -63,6 +79,17 @@ import { CloudinaryModule } from 'nestjs-cloudinary';
     ControllerModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    JwtStrategy,
+    JwtRefreshStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}

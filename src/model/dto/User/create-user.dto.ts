@@ -25,7 +25,7 @@ export class CreateUserDto {
   @IsString()
   @MinLength(6)
   @MaxLength(255)
-  password_hash: string;
+  password: string;
 
   @ApiProperty({
     example: SubscriptionType.FREE,

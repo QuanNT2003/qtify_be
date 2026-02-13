@@ -14,6 +14,7 @@ import { PlaylistSongService } from './playlist-song.service';
 import { SongArtistService } from './song-artist.service';
 import { SongGenreService } from './song-genre.service';
 import { UserLikeService } from './user-like.service';
+import { AuthService } from './auth.service';
 
 @Global()
 @Module({
@@ -41,6 +42,7 @@ import { UserLikeService } from './user-like.service';
     SongArtistService,
     SongGenreService,
     UserLikeService,
+    AuthService,
   ],
   exports: [
     GenreService,
@@ -56,6 +58,7 @@ import { UserLikeService } from './user-like.service';
     SongArtistService,
     SongGenreService,
     UserLikeService,
+    AuthService,
   ],
 })
 export class ServiceModule {}

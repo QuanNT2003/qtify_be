@@ -9,10 +9,12 @@ import {
   BeforeUpdate,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Exclude } from 'class-transformer';
 import { Playlist } from './playlist.entity';
 import { UserLike } from './user-like.entity';
 import { Follow } from './follow.entity';
 import { ListeningHistory } from './listening-history.entity';
+import { Role } from '../enum/role.enum';
 
 export enum SubscriptionType {
   FREE = 'FREE',
@@ -31,7 +33,8 @@ export class User {
   email: string;
 
   @Column({ type: 'varchar', length: 255 })
-  password_hash: string;
+  @Exclude()
+  password: string;
 
   @Column({
     type: 'enum',
@@ -39,6 +42,13 @@ export class User {
     default: SubscriptionType.FREE,
   })
   subscription_type: SubscriptionType;
+
+  @Column({
+    type: 'enum',
+    enum: Role,
+    default: Role.USER,
+  })
+  role: Role;
 
   @Column({ type: 'varchar', length: 500, nullable: true })
   avatar_url: string;
@@ -54,6 +64,16 @@ export class User {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @Column({ default: true })
+  isActive: boolean;
+
+  @Column({ type: 'varchar', length: 512, nullable: true })
+  @Exclude()
+  refreshToken?: string | null;
+
+  @Column({ nullable: true })
+  lastLoginAt?: Date;
 
   // Relationships
   @OneToMany(() => Playlist, (playlist) => playlist.user)
@@ -72,13 +92,13 @@ export class User {
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
-    if (this.password_hash && !this.password_hash.startsWith('$2')) {
-      this.password_hash = await bcrypt.hash(this.password_hash, 10);
+    if (this.password && !this.password.startsWith('$2')) {
+      this.password = await bcrypt.hash(this.password, 10);
     }
   }
 
   // Method to validate password
   async validatePassword(password: string): Promise<boolean> {
-    return bcrypt.compare(password, this.password_hash);
+    return bcrypt.compare(password, this.password);
   }
 }

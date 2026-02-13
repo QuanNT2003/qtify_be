@@ -15,6 +15,7 @@ import { PlaylistSongController } from './playlist-song.controller';
 import { SongArtistController } from './song-artist.controller';
 import { SongGenreController } from './song-genre.controller';
 import { UserLikeController } from './user-like.controller';
+import { AuthController } from './auth.controller';
 // import { ParticipantController } from './participant.controller';
 
 @Module({
@@ -41,6 +42,7 @@ import { UserLikeController } from './user-like.controller';
     SongArtistController,
     SongGenreController,
     UserLikeController,
+    AuthController,
   ],
 })
 export class ControllerModule {}
