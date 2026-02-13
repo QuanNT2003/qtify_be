@@ -25,7 +25,8 @@ import { SongService } from '../service/song.service';
 import { CreateSongDto } from '../model/dto/Song/create-song.dto';
 import { UpdateSongDto } from '../model/dto/Song/update-song.dto';
 import { PageOptionsDto } from '../common/dto/pagination-query.dto';
-
+import { Roles } from 'src/common/decorator/roles.decorator';
+import { Role } from 'src/model/enum/role.enum';
 @ApiBearerAuth()
 @Controller('song')
 @ApiTags('Song')
@@ -33,6 +34,7 @@ export class SongController {
   constructor(private readonly songService: SongService) {}
 
   @Post()
+  @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create a song' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -90,6 +92,7 @@ export class SongController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a song by ID' })
+  @Roles(Role.SUPER_ADMIN)
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -130,6 +133,7 @@ export class SongController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a song by ID' })
+  @Roles(Role.SUPER_ADMIN)
   @ApiResponse({ status: 200, description: 'Song deleted' })
   @ApiParam({ name: 'id', type: 'string' })
   remove(@Param('id') id: string) {

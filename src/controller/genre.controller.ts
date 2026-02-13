@@ -19,7 +19,8 @@ import { GenreService } from '../service/genre.service';
 import { CreateGenreDto } from '../model/dto/Genre/create-genre.dto';
 import { UpdateGenreDto } from '../model/dto/Genre/update-genre.dto';
 import { GetGenresDto } from '../model/dto/Genre/get-genres.dto';
-
+import { Roles } from 'src/common/decorator/roles.decorator';
+import { Role } from 'src/model/enum/role.enum';
 @ApiBearerAuth()
 @Controller('genre')
 @ApiTags('Genre')
@@ -27,6 +28,7 @@ export class GenreController {
   constructor(private readonly genreService: GenreService) {}
 
   @Post()
+  @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create a genre' })
   @ApiResponse({ status: 201, description: 'Genre created' })
   create(@Body() createGenreDto: CreateGenreDto) {
@@ -49,6 +51,7 @@ export class GenreController {
   }
 
   @Patch(':id')
+  @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Update a genre by ID' })
   @ApiResponse({ status: 200, description: 'Genre updated' })
   @ApiParam({ name: 'id', type: 'string' })
@@ -57,6 +60,7 @@ export class GenreController {
   }
 
   @Delete(':id')
+  @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Delete a genre by ID' })
   @ApiResponse({ status: 200, description: 'Genre deleted' })
   @ApiParam({ name: 'id', type: 'string' })

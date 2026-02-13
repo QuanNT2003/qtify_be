@@ -25,7 +25,8 @@ import { AlbumService } from '../service/album.service';
 import { CreateAlbumDto } from '../model/dto/Album/create-album.dto';
 import { UpdateAlbumDto } from '../model/dto/Album/update-album.dto';
 import { PageOptionsDto } from '../common/dto/pagination-query.dto';
-
+import { Roles } from 'src/common/decorator/roles.decorator';
+import { Role } from 'src/model/enum/role.enum';
 @ApiBearerAuth()
 @Controller('album')
 @ApiTags('Album')
@@ -33,6 +34,7 @@ export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 
   @Post()
+  @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create an album with optional cover image' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -79,6 +81,7 @@ export class AlbumController {
   }
 
   @Patch(':id')
+  @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Update an album by ID' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -109,6 +112,7 @@ export class AlbumController {
   }
 
   @Delete(':id')
+  @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Delete an album by ID' })
   @ApiResponse({ status: 200, description: 'Album deleted' })
   @ApiParam({ name: 'id', type: 'string' })

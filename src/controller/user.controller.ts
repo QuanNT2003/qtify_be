@@ -27,7 +27,8 @@ import { UpdateUserDto } from '../model/dto/User/update-user.dto';
 import { PageOptionsDto } from '../common/dto/pagination-query.dto';
 import { CurrentUser } from '../common/decorator/current-user.decorator';
 import { User } from '../model/entity/user.entity';
-
+import { Roles } from 'src/common/decorator/roles.decorator';
+import { Role } from 'src/model/enum/role.enum';
 @ApiBearerAuth()
 @Controller('users')
 @ApiTags('User')
@@ -42,6 +43,7 @@ export class UserController {
   }
 
   @Post()
+  @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create a user with optional avatar' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -90,6 +92,7 @@ export class UserController {
   }
 
   @Patch(':id')
+  @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Update a user by ID' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -122,6 +125,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Delete a user by ID' })
   @ApiResponse({ status: 200, description: 'User deleted' })
   @ApiParam({ name: 'id', type: 'string' })

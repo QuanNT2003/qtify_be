@@ -24,7 +24,8 @@ import { ArtistService } from '../service/artist.service';
 import { CreateArtistDto } from '../model/dto/Artist/create-artist.dto';
 import { UpdateArtistDto } from '../model/dto/Artist/update-artist.dto';
 import { GetArtistsDto } from '../model/dto/Artist/get-artists.dto';
-
+import { Roles } from 'src/common/decorator/roles.decorator';
+import { Role } from 'src/model/enum/role.enum';
 @ApiBearerAuth()
 @Controller('artist')
 @ApiTags('Artist')
@@ -33,6 +34,7 @@ export class ArtistController {
 
   @Post()
   @ApiOperation({ summary: 'Create an artist with optional avatar' })
+  @Roles(Role.SUPER_ADMIN)
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -76,6 +78,7 @@ export class ArtistController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update an artist by ID' })
+  @Roles(Role.SUPER_ADMIN)
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -105,6 +108,7 @@ export class ArtistController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete an artist by ID' })
+  @Roles(Role.SUPER_ADMIN)
   @ApiResponse({ status: 200, description: 'Artist deleted' })
   @ApiParam({ name: 'id', type: 'string' })
   remove(@Param('id') id: string) {
