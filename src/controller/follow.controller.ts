@@ -8,6 +8,7 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -19,6 +20,7 @@ import { CreateFollowDto } from '../model/dto/Follow/create-follow.dto';
 import { FollowType } from 'src/model/entity/follow.entity';
 import { PageOptionsDto } from '../common/dto/pagination-query.dto';
 
+@ApiBearerAuth()
 @Controller('follow')
 @ApiTags('Follow')
 export class FollowController {

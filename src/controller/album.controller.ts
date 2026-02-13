@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
+  ApiBearerAuth,
   ApiConsumes,
   ApiOperation,
   ApiParam,
@@ -25,6 +26,7 @@ import { CreateAlbumDto } from '../model/dto/Album/create-album.dto';
 import { UpdateAlbumDto } from '../model/dto/Album/update-album.dto';
 import { PageOptionsDto } from '../common/dto/pagination-query.dto';
 
+@ApiBearerAuth()
 @Controller('album')
 @ApiTags('Album')
 export class AlbumController {

@@ -28,13 +28,13 @@ import { PageOptionsDto } from '../common/dto/pagination-query.dto';
 import { CurrentUser } from '../common/decorator/current-user.decorator';
 import { User } from '../model/entity/user.entity';
 
+@ApiBearerAuth()
 @Controller('users')
 @ApiTags('User')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('profile')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user profile' })
   @ApiResponse({ status: 200, description: 'User profile returned' })
   getProfile(@CurrentUser() user: User) {

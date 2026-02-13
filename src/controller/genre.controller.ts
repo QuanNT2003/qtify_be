@@ -9,7 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import {
-  // ApiBearerAuth,
+  ApiBearerAuth,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -20,8 +20,8 @@ import { CreateGenreDto } from '../model/dto/Genre/create-genre.dto';
 import { UpdateGenreDto } from '../model/dto/Genre/update-genre.dto';
 import { GetGenresDto } from '../model/dto/Genre/get-genres.dto';
 
+@ApiBearerAuth()
 @Controller('genre')
-// @ApiBearerAuth()
 @ApiTags('Genre')
 export class GenreController {
   constructor(private readonly genreService: GenreService) {}

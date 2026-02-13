@@ -8,6 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -18,6 +19,7 @@ import { SongArtistService } from '../service/song-artist.service';
 import { CreateSongArtistDto } from '../model/dto/SongArtist/create-song-artist.dto';
 import { ArtistRole } from 'src/model/entity/song-artist.entity';
 
+@ApiBearerAuth()
 @Controller('song-artist')
 @ApiTags('SongArtist')
 export class SongArtistController {

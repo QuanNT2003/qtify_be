@@ -8,6 +8,7 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -18,6 +19,7 @@ import { ListeningHistoryService } from '../service/listening-history.service';
 import { CreateListeningHistoryDto } from '../model/dto/ListeningHistory/create-listening-history.dto';
 import { PageOptionsDto } from '../common/dto/pagination-query.dto';
 
+@ApiBearerAuth()
 @Controller('listening-history')
 @ApiTags('ListeningHistory')
 export class ListeningHistoryController {

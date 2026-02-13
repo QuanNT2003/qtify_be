@@ -8,6 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -17,6 +18,7 @@ import {
 import { PlaylistSongService } from '../service/playlist-song.service';
 import { CreatePlaylistSongDto } from '../model/dto/PlaylistSong/create-playlist-song.dto';
 
+@ApiBearerAuth()
 @Controller('playlist-song')
 @ApiTags('PlaylistSong')
 export class PlaylistSongController {

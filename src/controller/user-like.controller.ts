@@ -1,8 +1,15 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserLikeService } from '../service/user-like.service';
 import { CreateUserLikeDto } from '../model/dto/UserLike/create-user-like.dto';
 
+@ApiBearerAuth()
 @Controller('user-like')
 @ApiTags('UserLike')
 export class UserLikeController {

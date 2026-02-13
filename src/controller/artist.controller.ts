@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
+  ApiBearerAuth,
   ApiConsumes,
   ApiOperation,
   ApiParam,
@@ -24,6 +25,7 @@ import { CreateArtistDto } from '../model/dto/Artist/create-artist.dto';
 import { UpdateArtistDto } from '../model/dto/Artist/update-artist.dto';
 import { GetArtistsDto } from '../model/dto/Artist/get-artists.dto';
 
+@ApiBearerAuth()
 @Controller('artist')
 @ApiTags('Artist')
 export class ArtistController {

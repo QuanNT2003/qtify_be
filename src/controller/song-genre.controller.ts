@@ -1,8 +1,15 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { SongGenreService } from '../service/song-genre.service';
 import { CreateSongGenreDto } from '../model/dto/SongGenre/create-song-genre.dto';
 
+@ApiBearerAuth()
 @Controller('song-genre')
 @ApiTags('SongGenre')
 export class SongGenreController {
