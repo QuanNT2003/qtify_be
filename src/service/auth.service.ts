@@ -46,7 +46,7 @@ export class AuthService {
       username: registerDto.username,
       password: registerDto.password,
       full_name: registerDto.full_name,
-    } as any); // Cast as any because userService.create expects CreateUserDto which might have slightly different structure but we are passing valid fields
+    }); // Cast as any because userService.create expects CreateUserDto which might have slightly different structure but we are passing valid fields
 
     return user;
   }
