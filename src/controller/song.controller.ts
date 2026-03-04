@@ -27,6 +27,7 @@ import { UpdateSongDto } from '../model/dto/Song/update-song.dto';
 import { PageOptionsDto } from '../common/dto/pagination-query.dto';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { Role } from 'src/model/enum/role.enum';
+import { Public } from 'src/common/decorator/public.decorator';
 @ApiBearerAuth()
 @Controller('song')
 @ApiTags('Song')
@@ -74,6 +75,7 @@ export class SongController {
   }
 
   @Get()
+  @Public()
   @ApiOperation({ summary: 'Find all songs with pagination' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'per_page', required: false, type: Number, example: 10 })
@@ -83,6 +85,7 @@ export class SongController {
   }
 
   @Get(':id')
+  @Public()
   @ApiOperation({ summary: 'Find a song by ID' })
   @ApiResponse({ status: 200, description: 'Song found' })
   @ApiParam({ name: 'id', type: 'string' })

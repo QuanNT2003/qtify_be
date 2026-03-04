@@ -21,6 +21,7 @@ import { UpdateGenreDto } from '../model/dto/Genre/update-genre.dto';
 import { GetGenresDto } from '../model/dto/Genre/get-genres.dto';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { Role } from 'src/model/enum/role.enum';
+import { Public } from 'src/common/decorator/public.decorator';
 @ApiBearerAuth()
 @Controller('genre')
 @ApiTags('Genre')
@@ -36,6 +37,7 @@ export class GenreController {
   }
 
   @Get()
+  @Public()
   @ApiOperation({ summary: 'Find all genres with pagination' })
   @ApiResponse({ status: 200, description: 'Genres found' })
   findAll(@Query() query: GetGenresDto) {
@@ -43,6 +45,7 @@ export class GenreController {
   }
 
   @Get(':id')
+  @Public()
   @ApiOperation({ summary: 'Find a genre by ID' })
   @ApiResponse({ status: 200, description: 'Genre found' })
   @ApiParam({ name: 'id', type: 'string' })

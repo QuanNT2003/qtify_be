@@ -27,6 +27,7 @@ import { UpdateAlbumDto } from '../model/dto/Album/update-album.dto';
 import { PageOptionsDto } from '../common/dto/pagination-query.dto';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { Role } from 'src/model/enum/role.enum';
+import { Public } from 'src/common/decorator/public.decorator';
 @ApiBearerAuth()
 @Controller('album')
 @ApiTags('Album')
@@ -64,6 +65,7 @@ export class AlbumController {
   }
 
   @Get()
+  @Public()
   @ApiOperation({ summary: 'Find all albums with pagination' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'per_page', required: false, type: Number, example: 10 })
@@ -73,6 +75,7 @@ export class AlbumController {
   }
 
   @Get(':id')
+  @Public()
   @ApiOperation({ summary: 'Find an album by ID' })
   @ApiResponse({ status: 200, description: 'Album found' })
   @ApiParam({ name: 'id', type: 'string' })
