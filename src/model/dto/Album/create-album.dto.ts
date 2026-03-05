@@ -21,7 +21,7 @@ export class CreateAlbumDto {
 
   @ApiProperty({ example: '2023-07-01', description: 'Album release date' })
   @IsDateString()
-  release_date: Date;
+  release_date: string;
 
   @ApiProperty({
     example: 'https://example.com/cover.jpg',
