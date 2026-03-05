@@ -24,7 +24,7 @@ import {
 import { AlbumService } from '../service/album.service';
 import { CreateAlbumDto } from '../model/dto/Album/create-album.dto';
 import { UpdateAlbumDto } from '../model/dto/Album/update-album.dto';
-import { PageOptionsDto } from '../common/dto/pagination-query.dto';
+import { GetAlbumsDto } from '../model/dto/Album/get-albums.dto';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { Role } from 'src/model/enum/role.enum';
 import { Public } from 'src/common/decorator/public.decorator';
@@ -66,12 +66,20 @@ export class AlbumController {
 
   @Get()
   @Public()
-  @ApiOperation({ summary: 'Find all albums with pagination' })
+  @ApiOperation({
+    summary: 'Find all albums with pagination and optional title search',
+  })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'per_page', required: false, type: Number, example: 10 })
+  @ApiQuery({
+    name: 'title',
+    required: false,
+    type: String,
+    description: 'Search album by title',
+  })
   @ApiResponse({ status: 200, description: 'Albums found' })
-  findAll(@Query() pageOptions: PageOptionsDto) {
-    return this.albumService.findAll(pageOptions);
+  findAll(@Query() query: GetAlbumsDto) {
+    return this.albumService.findAll(query);
   }
 
   @Get(':id')
