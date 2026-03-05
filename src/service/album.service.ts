@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike } from 'typeorm';
+import { Repository, Like, In, FindOptionsWhere } from 'typeorm';
 import { CreateAlbumDto } from '../model/dto/Album/create-album.dto';
 import { UpdateAlbumDto } from '../model/dto/Album/update-album.dto';
 import { GetAlbumsDto } from '../model/dto/Album/get-albums.dto';
@@ -32,9 +32,11 @@ export class AlbumService {
   }
 
   async findAll(query: GetAlbumsDto): Promise<PaginatedResult<Album>> {
-    const where: Record<string, unknown> = {};
-    if (query.title) where.title = ILike(`%${query.title}%`);
-    if (query.artist_id) where.artist_id = query.artist_id;
+    const where: FindOptionsWhere<Album> = {};
+    if (query.title) where.title = Like(`%${query.title}%`);
+    if (query.artist_ids && query.artist_ids.length > 0) {
+      where.artist_id = In(query.artist_ids);
+    }
 
     const [data, total] = await this.albumRepository.findAndCount({
       skip: query.skip,

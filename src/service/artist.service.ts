@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { CreateArtistDto } from '../model/dto/Artist/create-artist.dto';
 import { UpdateArtistDto } from '../model/dto/Artist/update-artist.dto';
 import { Artist } from 'src/model/entity/artist.entity';
@@ -32,7 +32,7 @@ export class ArtistService {
   }
 
   async findAll(query: GetArtistsDto): Promise<PaginatedResult<Artist>> {
-    const where = query.name ? { name: ILike(`%${query.name}%`) } : {};
+    const where = query.name ? { name: Like(`%${query.name}%`) } : {};
 
     const [data, total] = await this.artistRepository.findAndCount({
       skip: query.skip,

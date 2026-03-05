@@ -5,10 +5,10 @@ import { CreateSongDto } from '../model/dto/Song/create-song.dto';
 import { UpdateSongDto } from '../model/dto/Song/update-song.dto';
 import { Song } from 'src/model/entity/song.entity';
 import { CloudinaryService } from './cloudinary.service';
-import { PageOptionsDto } from 'src/common/dto/pagination-query.dto';
 import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
 import { SongGenreService } from './song-genre.service';
 import { SongArtistService } from './song-artist.service';
+import { GetSongsDto } from 'src/model/dto/Song/get-songs.dto';
 
 @Injectable()
 export class SongService {
@@ -37,7 +37,7 @@ export class SongService {
     // Normalize genre_ids and artist_ids (FormData may send them as strings)
     const normalizeArrayField = (field: any): string[] => {
       if (!field) return [];
-      if (Array.isArray(field)) return field;
+      if (Array.isArray(field)) return field as string[];
       if (typeof field === 'string') {
         return field
           .split(',')
@@ -77,28 +77,49 @@ export class SongService {
     return savedSong;
   }
 
-  async findAll(
-    pageOptionsDto: PageOptionsDto,
-  ): Promise<PaginatedResult<Song>> {
-    const [data, total] = await this.songRepository.findAndCount({
-      skip: pageOptionsDto.skip,
-      take: pageOptionsDto.per_page,
-      relations: [
-        'artist',
-        'featured_artists',
-        'featured_artists.artist',
-        'genres',
-        'genres.genre',
-      ],
-    });
+  async findAll(getSongsDto: GetSongsDto): Promise<PaginatedResult<Song>> {
+    const { title, artist_ids, genre_ids, album_ids, skip, per_page, page } =
+      getSongsDto;
 
-    const total_page = Math.ceil(total / pageOptionsDto.per_page);
+    const qb = this.songRepository
+      .createQueryBuilder('song')
+      .leftJoinAndSelect('song.artist', 'artist')
+      .leftJoinAndSelect('song.featured_artists', 'featured_artists')
+      .leftJoinAndSelect('featured_artists.artist', 'featuredArtist')
+      .leftJoinAndSelect('song.genres', 'genres')
+      .leftJoinAndSelect('genres.genre', 'genre')
+      .leftJoinAndSelect('song.album', 'album');
+
+    if (title) {
+      qb.andWhere('song.title LIKE :title', { title: `%${title}%` });
+    }
+
+    // Filter by main artist or featured artist
+    if (artist_ids && artist_ids.length > 0) {
+      qb.andWhere(
+        '(song.artist_id IN (:...artist_ids) OR featured_artists.artist_id IN (:...artist_ids))',
+        { artist_ids },
+      );
+    }
+
+    if (genre_ids && genre_ids.length > 0) {
+      qb.andWhere('genres.genre_id IN (:...genre_ids)', { genre_ids });
+    }
+
+    if (album_ids && album_ids.length > 0) {
+      qb.andWhere('song.album_id IN (:...album_ids)', { album_ids });
+    }
+
+    qb.skip(skip).take(per_page);
+
+    const [data, total] = await qb.getManyAndCount();
+    const total_page = Math.ceil(total / per_page);
 
     return {
       data,
       pagination: {
-        page: pageOptionsDto.page,
-        per_page: pageOptionsDto.per_page,
+        page,
+        per_page,
         total,
         total_page,
       },

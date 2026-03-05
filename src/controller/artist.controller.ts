@@ -26,6 +26,8 @@ import { UpdateArtistDto } from '../model/dto/Artist/update-artist.dto';
 import { GetArtistsDto } from '../model/dto/Artist/get-artists.dto';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { Role } from 'src/model/enum/role.enum';
+import { Public } from 'src/common/decorator/public.decorator';
+
 @ApiBearerAuth()
 @Controller('artist')
 @ApiTags('Artist')
@@ -62,6 +64,7 @@ export class ArtistController {
   }
 
   @Get()
+  @Public()
   @ApiOperation({ summary: 'Find all artists with pagination' })
   @ApiResponse({ status: 200, description: 'Artists found' })
   findAll(@Query() query: GetArtistsDto) {
@@ -69,6 +72,7 @@ export class ArtistController {
   }
 
   @Get(':id')
+  @Public()
   @ApiOperation({ summary: 'Find an artist by ID' })
   @ApiResponse({ status: 200, description: 'Artist found' })
   @ApiParam({ name: 'id', type: 'string' })

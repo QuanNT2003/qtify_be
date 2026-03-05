@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsUUID } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsArray, IsOptional, IsString, IsUUID } from 'class-validator';
 import { PageOptionsDto } from '../../../common/dto/pagination-query.dto';
 
 export class GetAlbumsDto extends PageOptionsDto {
@@ -8,8 +9,16 @@ export class GetAlbumsDto extends PageOptionsDto {
   @IsString()
   readonly title?: string;
 
-  @ApiPropertyOptional({ description: 'Filter albums by artist ID' })
+  @ApiPropertyOptional({
+    description: 'Filter albums by artist IDs (comma-separated UUIDs)',
+    type: [String],
+    example: ['uuid1', 'uuid2'],
+  })
   @IsOptional()
-  @IsUUID()
-  readonly artist_id?: string;
+  @Transform(({ value }: { value: string | string[] }) =>
+    typeof value === 'string' ? value.split(',').map((v) => v.trim()) : value,
+  )
+  @IsArray()
+  @IsUUID('all', { each: true })
+  readonly artist_ids?: string[];
 }

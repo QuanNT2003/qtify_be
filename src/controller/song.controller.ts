@@ -24,7 +24,7 @@ import {
 import { SongService } from '../service/song.service';
 import { CreateSongDto } from '../model/dto/Song/create-song.dto';
 import { UpdateSongDto } from '../model/dto/Song/update-song.dto';
-import { PageOptionsDto } from '../common/dto/pagination-query.dto';
+import { GetSongsDto } from '../model/dto/Song/get-songs.dto';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { Role } from 'src/model/enum/role.enum';
 import { Public } from 'src/common/decorator/public.decorator';
@@ -76,12 +76,39 @@ export class SongController {
 
   @Get()
   @Public()
-  @ApiOperation({ summary: 'Find all songs with pagination' })
+  @ApiOperation({ summary: 'Find all songs with pagination and filters' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'per_page', required: false, type: Number, example: 10 })
+  @ApiQuery({
+    name: 'title',
+    required: false,
+    type: String,
+    description: 'Search by title',
+  })
+  @ApiQuery({
+    name: 'artist_ids',
+    required: false,
+    type: String,
+    description: 'Comma-separated artist UUIDs (main or featured)',
+    example: 'uuid1,uuid2',
+  })
+  @ApiQuery({
+    name: 'genre_ids',
+    required: false,
+    type: String,
+    description: 'Comma-separated genre UUIDs',
+    example: 'uuid1,uuid2',
+  })
+  @ApiQuery({
+    name: 'album_ids',
+    required: false,
+    type: String,
+    description: 'Comma-separated album UUIDs',
+    example: 'uuid1,uuid2',
+  })
   @ApiResponse({ status: 200, description: 'Songs found' })
-  findAll(@Query() pageOptions: PageOptionsDto) {
-    return this.songService.findAll(pageOptions);
+  findAll(@Query() getSongsDto: GetSongsDto) {
+    return this.songService.findAll(getSongsDto);
   }
 
   @Get(':id')
