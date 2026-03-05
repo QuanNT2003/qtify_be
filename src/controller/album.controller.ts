@@ -88,7 +88,7 @@ export class AlbumController {
   @ApiResponse({ status: 200, description: 'Album found' })
   @ApiParam({ name: 'id', type: 'string' })
   findOne(@Param('id') id: string) {
-    return this.albumService.findOne(id);
+    return this.albumService.findOneDetail(id);
   }
 
   @Patch(':id')

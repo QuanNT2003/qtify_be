@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
 import { PageOptionsDto } from '../../../common/dto/pagination-query.dto';
 
 export class GetAlbumsDto extends PageOptionsDto {
@@ -7,4 +7,9 @@ export class GetAlbumsDto extends PageOptionsDto {
   @IsOptional()
   @IsString()
   readonly title?: string;
+
+  @ApiPropertyOptional({ description: 'Filter albums by artist ID' })
+  @IsOptional()
+  @IsUUID()
+  readonly artist_id?: string;
 }

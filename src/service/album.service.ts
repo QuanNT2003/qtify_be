@@ -32,12 +32,18 @@ export class AlbumService {
   }
 
   async findAll(query: GetAlbumsDto): Promise<PaginatedResult<Album>> {
-    const where = query.title ? { title: ILike(`%${query.title}%`) } : {};
+    const where: Record<string, unknown> = {};
+    if (query.title) where.title = ILike(`%${query.title}%`);
+    if (query.artist_id) where.artist_id = query.artist_id;
 
     const [data, total] = await this.albumRepository.findAndCount({
       skip: query.skip,
       take: query.per_page,
       where,
+      relations: ['artist'],
+      select: {
+        artist: { id: true, name: true },
+      },
     });
 
     const total_page = Math.ceil(total / query.per_page);
@@ -55,6 +61,13 @@ export class AlbumService {
 
   findOne(id: string) {
     return this.albumRepository.findOne({ where: { id } });
+  }
+
+  findOneDetail(id: string) {
+    return this.albumRepository.findOne({
+      where: { id },
+      relations: ['artist', 'songs'],
+    });
   }
 
   async update(
