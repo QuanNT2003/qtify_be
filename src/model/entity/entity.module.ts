@@ -12,6 +12,7 @@ import { SongGenre } from './song-genre.entity';
 import { Song } from './song.entity';
 import { UserLike } from './user-like.entity';
 import { User } from './user.entity';
+import { PlaybackQueue } from './playback-queue.entity';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { User } from './user.entity';
       Song,
       UserLike,
       User,
+      PlaybackQueue,
     ]),
   ],
   exports: [TypeOrmModule],

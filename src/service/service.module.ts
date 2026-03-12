@@ -15,6 +15,7 @@ import { SongArtistService } from './song-artist.service';
 import { SongGenreService } from './song-genre.service';
 import { UserLikeService } from './user-like.service';
 import { AuthService } from './auth.service';
+import { QueueService } from './queue.service';
 
 @Global()
 @Module({
@@ -34,6 +35,7 @@ import { AuthService } from './auth.service';
     SongGenreService,
     UserLikeService,
     AuthService,
+    QueueService,
   ],
   exports: [
     GenreService,
@@ -50,6 +52,7 @@ import { AuthService } from './auth.service';
     SongGenreService,
     UserLikeService,
     AuthService,
+    QueueService,
   ],
 })
 export class ServiceModule {}

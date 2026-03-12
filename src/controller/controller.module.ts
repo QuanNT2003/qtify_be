@@ -17,6 +17,7 @@ import { SongGenreController } from './song-genre.controller';
 import { UserLikeController } from './user-like.controller';
 import { AuthController } from './auth.controller';
 // import { ParticipantController } from './participant.controller';
+import { QueueController } from './queue.controller';
 
 @Module({
   imports: [ServiceModule],
@@ -34,6 +35,7 @@ import { AuthController } from './auth.controller';
     SongGenreController,
     UserLikeController,
     AuthController,
+    QueueController,
   ],
 })
 export class ControllerModule {}

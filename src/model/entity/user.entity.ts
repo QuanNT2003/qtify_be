@@ -5,12 +5,14 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  OneToOne,
   BeforeInsert,
   BeforeUpdate,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
 import { Playlist } from './playlist.entity';
+import { PlaybackQueue } from './playback-queue.entity';
 import { UserLike } from './user-like.entity';
 import { Follow } from './follow.entity';
 import { ListeningHistory } from './listening-history.entity';
@@ -76,6 +78,9 @@ export class User {
   lastLoginAt?: Date;
 
   // Relationships
+  @OneToOne(() => PlaybackQueue, (queue) => queue.user)
+  playback_queue: PlaybackQueue;
+
   @OneToMany(() => Playlist, (playlist) => playlist.user)
   playlists: Playlist[];
 

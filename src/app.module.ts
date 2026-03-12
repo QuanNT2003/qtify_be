@@ -23,6 +23,7 @@ import { JwtRefreshStrategy } from './common/strategies/jwt-refresh.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guard/jwt-auth.guard';
 import { RolesGuard } from './common/guard/roles.guard';
+import { PlaybackQueue } from './model/entity/playback-queue.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -61,6 +62,7 @@ import { RolesGuard } from './common/guard/roles.guard';
           Song,
           UserLike,
           User,
+          PlaybackQueue,
         ],
         synchronize: true,
         autoLoadEntities: true,
