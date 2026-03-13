@@ -28,9 +28,6 @@ export class Playlist {
   @Column({ type: 'boolean', default: false })
   is_public: boolean;
 
-  @Column({ type: 'varchar', length: 500, nullable: true })
-  cover_image_url: string;
-
   @CreateDateColumn()
   created_at: Date;
 

@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { CreatePlaylistDto } from '../model/dto/Playlist/create-playlist.dto';
 import { UpdatePlaylistDto } from '../model/dto/Playlist/update-playlist.dto';
 import { Playlist } from 'src/model/entity/playlist.entity';
-import { CloudinaryService } from './cloudinary.service';
 import { PageOptionsDto } from 'src/common/dto/pagination-query.dto';
 import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
 
@@ -13,31 +12,23 @@ export class PlaylistService {
   constructor(
     @InjectRepository(Playlist)
     private playlistRepository: Repository<Playlist>,
-    private cloudinaryService: CloudinaryService,
   ) {}
 
-  async create(
-    createPlaylistDto: CreatePlaylistDto,
-    file?: Express.Multer.File,
-  ) {
-    const playlist = this.playlistRepository.create(createPlaylistDto);
-
-    // Upload cover image if file is provided
-    if (file) {
-      const uploadResult = await this.cloudinaryService.uploadImage(
-        file,
-        'playlists',
-      );
-      playlist.cover_image_url = uploadResult.secure_url;
-    }
+  async create(userId: string, createPlaylistDto: CreatePlaylistDto) {
+    const playlist = this.playlistRepository.create({
+      ...createPlaylistDto,
+      user_id: userId,
+    });
 
     return this.playlistRepository.save(playlist);
   }
 
   async findAll(
+    userId: string,
     pageOptionsDto: PageOptionsDto,
   ): Promise<PaginatedResult<Playlist>> {
     const [data, total] = await this.playlistRepository.findAndCount({
+      where: [{ user_id: userId }, { is_public: true }],
       skip: pageOptionsDto.skip,
       take: pageOptionsDto.per_page,
     });
@@ -55,74 +46,51 @@ export class PlaylistService {
     };
   }
 
-  findOne(id: string) {
-    return this.playlistRepository.findOne({ where: { id } });
-  }
-
-  findByUser(userId: string) {
-    return this.playlistRepository.find({ where: { user_id: userId } });
-  }
-
-  async update(
-    id: string,
-    updatePlaylistDto: UpdatePlaylistDto,
-    file?: Express.Multer.File,
-  ) {
-    const playlist = await this.findOne(id);
+  async findOne(id: string, userId?: string) {
+    const playlist = await this.playlistRepository.findOne({ where: { id } });
     if (!playlist) {
       throw new NotFoundException('Playlist not found');
     }
 
-    // Handle cover image update
-    if (file) {
-      // Delete old cover image if exists
-      if (playlist.cover_image_url) {
-        await this.cloudinaryService.deleteFile(
-          playlist.cover_image_url,
-          'image',
-        );
-      }
+    if (userId && playlist.user_id !== userId && !playlist.is_public) {
+      throw new NotFoundException('Playlist not found');
+    }
 
-      // Upload new cover image
-      const uploadResult = await this.cloudinaryService.uploadImage(
-        file,
-        'playlists',
+    return playlist;
+  }
+
+  async update(
+    id: string,
+    userId: string,
+    updatePlaylistDto: UpdatePlaylistDto,
+  ) {
+    const playlist = await this.findOne(id, userId);
+    if (!playlist) {
+      throw new NotFoundException('Playlist not found');
+    }
+
+    if (playlist.user_id !== userId) {
+      throw new NotFoundException(
+        'You do not have permission to update this playlist',
       );
-      playlist.cover_image_url = uploadResult.secure_url;
     }
 
     Object.assign(playlist, updatePlaylistDto);
     return this.playlistRepository.save(playlist);
   }
 
-  async remove(id: string) {
-    const playlist = await this.findOne(id);
+  async remove(id: string, userId: string) {
+    const playlist = await this.findOne(id, userId);
     if (!playlist) {
       throw new NotFoundException('Playlist not found');
     }
 
-    if (playlist.cover_image_url) {
-      await this.cloudinaryService.deleteFile(
-        playlist.cover_image_url,
-        'image',
+    if (playlist.user_id !== userId) {
+      throw new NotFoundException(
+        'You do not have permission to delete this playlist',
       );
     }
 
     return this.playlistRepository.remove(playlist);
-  }
-
-  async uploadCoverImage(id: string, file: Express.Multer.File) {
-    const playlist = await this.findOne(id);
-    if (!playlist) {
-      throw new NotFoundException('Playlist not found');
-    }
-
-    const uploadResult = await this.cloudinaryService.uploadImage(
-      file,
-      'playlists',
-    );
-
-    playlist.cover_image_url = uploadResult.secure_url;
-    return this.playlistRepository.save(playlist);
   }
 }
