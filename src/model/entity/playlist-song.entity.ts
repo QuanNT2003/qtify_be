@@ -1,6 +1,5 @@
 import {
   Entity,
-  Column,
   ManyToOne,
   JoinColumn,
   PrimaryColumn,
@@ -16,9 +15,6 @@ export class PlaylistSong {
 
   @PrimaryColumn({ type: 'uuid' })
   song_id: string;
-
-  @Column({ type: 'int', default: 0 })
-  order_index: number; // Order of song in playlist
 
   @CreateDateColumn()
   added_at: Date;

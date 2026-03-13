@@ -21,19 +21,7 @@ export class PlaylistSongService {
   findByPlaylist(playlistId: string) {
     return this.playlistSongRepository.find({
       where: { playlist_id: playlistId },
-      order: { order_index: 'ASC' },
     });
-  }
-
-  async updateOrder(playlistId: string, songId: string, newOrder: number) {
-    const playlistSong = await this.playlistSongRepository.findOne({
-      where: { playlist_id: playlistId, song_id: songId },
-    });
-    if (!playlistSong) {
-      throw new NotFoundException('Playlist song not found');
-    }
-    playlistSong.order_index = newOrder;
-    return this.playlistSongRepository.save(playlistSong);
   }
 
   async remove(playlistId: string, songId: string) {

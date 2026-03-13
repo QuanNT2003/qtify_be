@@ -1,19 +1,10 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
   ApiResponse,
   ApiTags,
-  ApiBody,
 } from '@nestjs/swagger';
 import { PlaylistSongService } from '../service/playlist-song.service';
 import { CreatePlaylistSongDto } from '../model/dto/PlaylistSong/create-playlist-song.dto';
@@ -37,27 +28,6 @@ export class PlaylistSongController {
   @ApiParam({ name: 'playlistId', type: 'string' })
   findByPlaylist(@Param('playlistId') playlistId: string) {
     return this.playlistSongService.findByPlaylist(playlistId);
-  }
-
-  @Patch(':playlistId/:songId/order')
-  @ApiOperation({ summary: 'Update song order in playlist' })
-  @ApiResponse({ status: 200, description: 'Order updated' })
-  @ApiParam({ name: 'playlistId', type: 'string' })
-  @ApiParam({ name: 'songId', type: 'string' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        order_index: { type: 'number' },
-      },
-    },
-  })
-  updateOrder(
-    @Param('playlistId') playlistId: string,
-    @Param('songId') songId: string,
-    @Body('order_index') orderIndex: number,
-  ) {
-    return this.playlistSongService.updateOrder(playlistId, songId, orderIndex);
   }
 
   @Delete(':playlistId/:songId')
