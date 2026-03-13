@@ -19,6 +19,7 @@ export class UserLikeService {
   findByUser(userId: string) {
     return this.userLikeRepository.find({
       where: { user_id: userId },
+      relations: ['song', 'song.artist', 'song.album'],
     });
   }
 
