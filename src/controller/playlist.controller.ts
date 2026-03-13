@@ -22,11 +22,16 @@ import { CreatePlaylistDto } from '../model/dto/Playlist/create-playlist.dto';
 import { UpdatePlaylistDto } from '../model/dto/Playlist/update-playlist.dto';
 import { PageOptionsDto } from '../common/dto/pagination-query.dto';
 import { Request } from 'express';
+import { OptionalAuth } from 'src/common/decorator/optional-auth.decorator';
 
 interface AuthRequest extends Request {
   user: {
     id: string;
   };
+}
+
+interface OptionalAuthRequest extends Request {
+  user?: { id: string };
 }
 
 @ApiBearerAuth()
@@ -55,11 +60,15 @@ export class PlaylistController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Find a playlist by ID' })
+  @OptionalAuth()
+  @ApiOperation({
+    summary:
+      'Find a playlist by ID (includes is_liked for songs if authenticated)',
+  })
   @ApiResponse({ status: 200, description: 'Playlist found' })
   @ApiParam({ name: 'id', type: 'string' })
-  findOne(@Param('id') id: string, @Req() req: AuthRequest) {
-    return this.playlistService.findOne(id, req.user.id);
+  findOne(@Param('id') id: string, @Req() req: OptionalAuthRequest) {
+    return this.playlistService.findOne(id, req.user?.id);
   }
 
   @Patch(':id')

@@ -7,12 +7,15 @@ import { GetAlbumsDto } from '../model/dto/Album/get-albums.dto';
 import { Album } from 'src/model/entity/album.entity';
 import { CloudinaryService } from './cloudinary.service';
 import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
+import { UserLike } from 'src/model/entity/user-like.entity';
 
 @Injectable()
 export class AlbumService {
   constructor(
     @InjectRepository(Album)
     private albumRepository: Repository<Album>,
+    @InjectRepository(UserLike)
+    private userLikeRepository: Repository<UserLike>,
     private cloudinaryService: CloudinaryService,
   ) {}
 
@@ -65,11 +68,24 @@ export class AlbumService {
     return this.albumRepository.findOne({ where: { id } });
   }
 
-  findOneDetail(id: string) {
-    return this.albumRepository.findOne({
+  async findOneDetail(id: string, userId?: string) {
+    const album = await this.albumRepository.findOne({
       where: { id },
       relations: ['artist', 'songs'],
     });
+
+    if (album && album.songs && userId && album.songs.length > 0) {
+      const songIds = album.songs.map((s) => s.id);
+      const likes = await this.userLikeRepository.find({
+        where: { user_id: userId, song_id: In(songIds) },
+      });
+      const likedSongIds = new Set(likes.map((l) => l.song_id));
+      album.songs.forEach((song) => {
+        Object.assign(song, { is_liked: likedSongIds.has(song.id) });
+      });
+    }
+
+    return album;
   }
 
   async update(

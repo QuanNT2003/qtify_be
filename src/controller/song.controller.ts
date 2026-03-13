@@ -9,6 +9,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Query,
+  Req,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -27,7 +28,13 @@ import { UpdateSongDto } from '../model/dto/Song/update-song.dto';
 import { GetSongsDto } from '../model/dto/Song/get-songs.dto';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { Role } from 'src/model/enum/role.enum';
-import { Public } from 'src/common/decorator/public.decorator';
+import { OptionalAuth } from 'src/common/decorator/optional-auth.decorator';
+import { Request } from 'express';
+
+interface OptionalAuthRequest extends Request {
+  user?: { id: string };
+}
+
 @ApiBearerAuth()
 @Controller('song')
 @ApiTags('Song')
@@ -75,8 +82,11 @@ export class SongController {
   }
 
   @Get()
-  @Public()
-  @ApiOperation({ summary: 'Find all songs with pagination and filters' })
+  @OptionalAuth()
+  @ApiOperation({
+    summary:
+      'Find all songs with pagination and filters (includes is_liked if authenticated)',
+  })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'per_page', required: false, type: Number, example: 10 })
   @ApiQuery({
@@ -107,17 +117,19 @@ export class SongController {
     example: 'uuid1,uuid2',
   })
   @ApiResponse({ status: 200, description: 'Songs found' })
-  findAll(@Query() getSongsDto: GetSongsDto) {
-    return this.songService.findAll(getSongsDto);
+  findAll(@Query() getSongsDto: GetSongsDto, @Req() req: OptionalAuthRequest) {
+    return this.songService.findAll(getSongsDto, req.user?.id);
   }
 
   @Get(':id')
-  @Public()
-  @ApiOperation({ summary: 'Find a song by ID' })
+  @OptionalAuth()
+  @ApiOperation({
+    summary: 'Find a song by ID (includes is_liked if authenticated)',
+  })
   @ApiResponse({ status: 200, description: 'Song found' })
   @ApiParam({ name: 'id', type: 'string' })
-  findOne(@Param('id') id: string) {
-    return this.songService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: OptionalAuthRequest) {
+    return this.songService.findOne(id, req.user?.id);
   }
 
   @Patch(':id')

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { CreateSongDto } from '../model/dto/Song/create-song.dto';
 import { UpdateSongDto } from '../model/dto/Song/update-song.dto';
 import { Song } from 'src/model/entity/song.entity';
@@ -9,12 +9,15 @@ import { PaginatedResult } from 'src/common/interfaces/paginated-result.interfac
 import { SongGenreService } from './song-genre.service';
 import { SongArtistService } from './song-artist.service';
 import { GetSongsDto } from 'src/model/dto/Song/get-songs.dto';
+import { UserLike } from 'src/model/entity/user-like.entity';
 
 @Injectable()
 export class SongService {
   constructor(
     @InjectRepository(Song)
     private songRepository: Repository<Song>,
+    @InjectRepository(UserLike)
+    private userLikeRepository: Repository<UserLike>,
     private cloudinaryService: CloudinaryService,
     private songGenreService: SongGenreService,
     private songArtistService: SongArtistService,
@@ -77,7 +80,10 @@ export class SongService {
     return savedSong;
   }
 
-  async findAll(getSongsDto: GetSongsDto): Promise<PaginatedResult<Song>> {
+  async findAll(
+    getSongsDto: GetSongsDto,
+    userId?: string,
+  ): Promise<PaginatedResult<Song>> {
     const { title, artist_ids, genre_ids, album_ids, skip, per_page, page } =
       getSongsDto;
 
@@ -113,6 +119,19 @@ export class SongService {
     qb.skip(skip).take(per_page);
 
     const [data, total] = await qb.getManyAndCount();
+
+    // Attach is_liked for authenticated user
+    if (userId && data.length > 0) {
+      const songIds = data.map((s) => s.id);
+      const likes = await this.userLikeRepository.find({
+        where: { user_id: userId, song_id: In(songIds) },
+      });
+      const likedSongIds = new Set(likes.map((l) => l.song_id));
+      data.forEach((song) => {
+        Object.assign(song, { is_liked: likedSongIds.has(song.id) });
+      });
+    }
+
     const total_page = Math.ceil(total / per_page);
 
     return {
@@ -126,8 +145,8 @@ export class SongService {
     };
   }
 
-  findOne(id: string) {
-    return this.songRepository.findOne({
+  async findOne(id: string, userId?: string) {
+    const song = await this.songRepository.findOne({
       where: { id },
       relations: [
         'artist',
@@ -137,6 +156,15 @@ export class SongService {
         'genres.genre',
       ],
     });
+
+    if (song && userId) {
+      const like = await this.userLikeRepository.findOne({
+        where: { user_id: userId, song_id: song.id },
+      });
+      Object.assign(song, { is_liked: !!like });
+    }
+
+    return song;
   }
 
   async update(

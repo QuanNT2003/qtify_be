@@ -1,17 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreatePlaylistDto } from '../model/dto/Playlist/create-playlist.dto';
 import { UpdatePlaylistDto } from '../model/dto/Playlist/update-playlist.dto';
 import { Playlist } from 'src/model/entity/playlist.entity';
 import { PageOptionsDto } from 'src/common/dto/pagination-query.dto';
 import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
+import { UserLike } from 'src/model/entity/user-like.entity';
 
 @Injectable()
 export class PlaylistService {
   constructor(
     @InjectRepository(Playlist)
     private playlistRepository: Repository<Playlist>,
+    @InjectRepository(UserLike)
+    private userLikeRepository: Repository<UserLike>,
   ) {}
 
   async create(userId: string, createPlaylistDto: CreatePlaylistDto) {
@@ -57,6 +60,25 @@ export class PlaylistService {
 
     if (userId && playlist.user_id !== userId && !playlist.is_public) {
       throw new NotFoundException('Playlist not found');
+    }
+
+    // Attach is_liked for each song in the playlist
+    if (userId && playlist.songs && playlist.songs.length > 0) {
+      const songIds = playlist.songs
+        .map((ps) => ps.song?.id)
+        .filter((id): id is string => !!id);
+
+      if (songIds.length > 0) {
+        const likes = await this.userLikeRepository.find({
+          where: { user_id: userId, song_id: In(songIds) },
+        });
+        const likedSongIds = new Set(likes.map((l) => l.song_id));
+        playlist.songs.forEach((ps) => {
+          if (ps.song) {
+            Object.assign(ps.song, { is_liked: likedSongIds.has(ps.song.id) });
+          }
+        });
+      }
     }
 
     return playlist;

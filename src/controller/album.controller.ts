@@ -9,6 +9,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Query,
+  Req,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -28,6 +29,13 @@ import { GetAlbumsDto } from '../model/dto/Album/get-albums.dto';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { Role } from 'src/model/enum/role.enum';
 import { Public } from 'src/common/decorator/public.decorator';
+import { OptionalAuth } from 'src/common/decorator/optional-auth.decorator';
+import { Request } from 'express';
+
+interface OptionalAuthRequest extends Request {
+  user?: { id: string };
+}
+
 @ApiBearerAuth()
 @Controller('album')
 @ApiTags('Album')
@@ -83,12 +91,15 @@ export class AlbumController {
   }
 
   @Get(':id')
-  @Public()
-  @ApiOperation({ summary: 'Find an album by ID' })
+  @OptionalAuth()
+  @ApiOperation({
+    summary:
+      'Find an album by ID (includes is_liked for songs if authenticated)',
+  })
   @ApiResponse({ status: 200, description: 'Album found' })
   @ApiParam({ name: 'id', type: 'string' })
-  findOne(@Param('id') id: string) {
-    return this.albumService.findOneDetail(id);
+  findOne(@Param('id') id: string, @Req() req: OptionalAuthRequest) {
+    return this.albumService.findOneDetail(id, req.user?.id);
   }
 
   @Patch(':id')

@@ -1,18 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { Repository, Like, In } from 'typeorm';
 import { CreateArtistDto } from '../model/dto/Artist/create-artist.dto';
 import { UpdateArtistDto } from '../model/dto/Artist/update-artist.dto';
 import { Artist } from 'src/model/entity/artist.entity';
 import { CloudinaryService } from './cloudinary.service';
 import { GetArtistsDto } from '../model/dto/Artist/get-artists.dto';
 import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
+import { UserLike } from 'src/model/entity/user-like.entity';
 
 @Injectable()
 export class ArtistService {
   constructor(
     @InjectRepository(Artist)
     private artistRepository: Repository<Artist>,
+    @InjectRepository(UserLike)
+    private userLikeRepository: Repository<UserLike>,
     private cloudinaryService: CloudinaryService,
   ) {}
 
@@ -55,6 +58,26 @@ export class ArtistService {
 
   findOne(id: string) {
     return this.artistRepository.findOne({ where: { id } });
+  }
+
+  async findOneDetail(id: string, userId?: string) {
+    const artist = await this.artistRepository.findOne({
+      where: { id },
+      relations: ['songs', 'songs.album'],
+    });
+
+    if (artist && artist.songs && userId && artist.songs.length > 0) {
+      const songIds = artist.songs.map((s) => s.id);
+      const likes = await this.userLikeRepository.find({
+        where: { user_id: userId, song_id: In(songIds) },
+      });
+      const likedSongIds = new Set(likes.map((l) => l.song_id));
+      artist.songs.forEach((song) => {
+        Object.assign(song, { is_liked: likedSongIds.has(song.id) });
+      });
+    }
+
+    return artist;
   }
 
   async update(

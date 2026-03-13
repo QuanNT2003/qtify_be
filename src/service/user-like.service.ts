@@ -16,11 +16,20 @@ export class UserLikeService {
     return this.userLikeRepository.save(userLike);
   }
 
-  findByUser(userId: string) {
-    return this.userLikeRepository.find({
+  async findByUser(userId: string) {
+    const likes = await this.userLikeRepository.find({
       where: { user_id: userId },
       relations: ['song', 'song.artist', 'song.album'],
     });
+
+    // All songs in this list are liked by the user
+    likes.forEach((like) => {
+      if (like.song) {
+        Object.assign(like.song, { is_liked: true });
+      }
+    });
+
+    return likes;
   }
 
   findBySong(songId: string) {

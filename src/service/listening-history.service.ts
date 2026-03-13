@@ -1,16 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
+import { Repository, Between, In } from 'typeorm';
 import { CreateListeningHistoryDto } from '../model/dto/ListeningHistory/create-listening-history.dto';
 import { ListeningHistory } from 'src/model/entity/listening-history.entity';
 import { PageOptionsDto } from 'src/common/dto/pagination-query.dto';
 import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
+import { UserLike } from 'src/model/entity/user-like.entity';
 
 @Injectable()
 export class ListeningHistoryService {
   constructor(
     @InjectRepository(ListeningHistory)
     private listeningHistoryRepository: Repository<ListeningHistory>,
+    @InjectRepository(UserLike)
+    private userLikeRepository: Repository<UserLike>,
   ) {}
 
   async create(createListeningHistoryDto: CreateListeningHistoryDto) {
@@ -45,11 +48,33 @@ export class ListeningHistoryService {
     return this.listeningHistoryRepository.findOne({ where: { id } });
   }
 
-  findByUser(userId: string) {
-    return this.listeningHistoryRepository.find({
+  async findByUser(userId: string) {
+    const histories = await this.listeningHistoryRepository.find({
       where: { user_id: userId },
+      relations: ['song', 'song.artist'],
       order: { played_at: 'DESC' },
     });
+
+    // Attach is_liked to each song in the history
+    if (histories.length > 0) {
+      const songIds = histories
+        .map((h) => h.song?.id)
+        .filter((id): id is string => !!id);
+
+      if (songIds.length > 0) {
+        const likes = await this.userLikeRepository.find({
+          where: { user_id: userId, song_id: In(songIds) },
+        });
+        const likedSongIds = new Set(likes.map((l) => l.song_id));
+        histories.forEach((h) => {
+          if (h.song) {
+            Object.assign(h.song, { is_liked: likedSongIds.has(h.song.id) });
+          }
+        });
+      }
+    }
+
+    return histories;
   }
 
   findByUserAndDateRange(userId: string, startDate: Date, endDate: Date) {

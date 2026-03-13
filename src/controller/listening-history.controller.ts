@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   Query,
+  Req,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -18,6 +19,11 @@ import {
 import { ListeningHistoryService } from '../service/listening-history.service';
 import { CreateListeningHistoryDto } from '../model/dto/ListeningHistory/create-listening-history.dto';
 import { PageOptionsDto } from '../common/dto/pagination-query.dto';
+import { Request } from 'express';
+
+interface AuthRequest extends Request {
+  user: { id: string };
+}
 
 @ApiBearerAuth()
 @Controller('listening-history')
@@ -51,8 +57,18 @@ export class ListeningHistoryController {
     return this.listeningHistoryService.findOne(id);
   }
 
+  @Get('user/me')
+  @ApiOperation({
+    summary:
+      "Get current user's listening history (includes is_liked for songs)",
+  })
+  @ApiResponse({ status: 200, description: 'User listening history found' })
+  findMyHistory(@Req() req: AuthRequest) {
+    return this.listeningHistoryService.findByUser(req.user.id);
+  }
+
   @Get('user/:userId')
-  @ApiOperation({ summary: "Get user's listening history" })
+  @ApiOperation({ summary: "Get user's listening history by userId" })
   @ApiResponse({ status: 200, description: 'User listening history found' })
   @ApiParam({ name: 'userId', type: 'string' })
   findByUser(@Param('userId') userId: string) {
